@@ -35,7 +35,7 @@ class StudentRepository(private val filePath: String): IStudentRepository {
             students[index] = student
             saveChanges()
         } else {
-            throw StudentNotFoundException("Student with ID $index id not found.")
+            throw StudentNotFoundException("Student with id not found.")
         }
     }
 

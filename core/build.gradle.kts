@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "org.example"
@@ -14,13 +15,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.0.21")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.4")
-
-    testImplementation("io.mockk:mockk:1.14.6")
-
 }
 
 tasks.test {

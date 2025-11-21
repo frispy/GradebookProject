@@ -1,4 +1,6 @@
 import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
+
 
 @Serializable
 

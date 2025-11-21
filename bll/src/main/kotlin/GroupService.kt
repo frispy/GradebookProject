@@ -12,17 +12,21 @@ class GroupService(
             ?: throw GroupNotFoundException(id)
     }
 
-    fun createGroup(groupName: String, course: Int) {
+    fun createGroup(groupName: String, course: Int): String {
         if (groupName.isBlank()) throw ValidationException("Group name cannot be empty")
         if (course !in 1..5) throw ValidationException("Course must be between 1 and 5")
+
+        val groupId = UUID.randomUUID().toString()
 
         val newGroup = Group(
             groupName = groupName,
             course = course,
-            id = UUID.randomUUID().toString(),
+            id = groupId,
             )
 
         groupRepository.add(newGroup)
+
+        return groupId
     }
 
     fun removeGroup(groupId: String) {

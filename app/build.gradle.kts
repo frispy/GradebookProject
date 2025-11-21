@@ -16,6 +16,12 @@ dependencies {
     implementation(project(":dal"))
     implementation(project(":core"))
 
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.0.21")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.4")
+
+    testImplementation("io.mockk:mockk:1.14.6")
+
 }
 
 tasks.test {

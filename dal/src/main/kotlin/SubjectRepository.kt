@@ -17,8 +17,15 @@ class SubjectRepository(private val filePath: String) : ISubjectRepository {
 
     override fun getAll(): List<Subject> = subjects.toList()
 
-    override fun getById(id: Int): Subject? {
+    override fun getById(id: String): Subject? {
         return subjects.find { it.id == id }
+    }
+
+    override fun delete(id: String) {
+        val removed = subjects.removeIf { it.id == id }
+        if (removed) {
+            saveChanges()
+        }
     }
 
     override fun add(subject: Subject) {
@@ -26,12 +33,17 @@ class SubjectRepository(private val filePath: String) : ISubjectRepository {
         saveChanges()
     }
 
-    override fun delete(id: Int) {
-        val removed = subjects.removeIf { it.id == id }
-        if (removed) {
+    override fun update(subject: Subject) {
+        val index = subjects.indexOfFirst { it.id == subject.id }
+
+        if (index != -1) {
+            subjects[index] = subject
             saveChanges()
+        } else {
+            println("Error: Subject with ID ${subject.id} not found.")
         }
     }
+
 
     override fun saveChanges() {
         val content = json.encodeToString(subjects)

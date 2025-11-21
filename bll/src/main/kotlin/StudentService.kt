@@ -13,24 +13,28 @@ class StudentService(
         }
     }
 
-    fun createStudent(firstName: String, lastName: String, groupId: String? = null) {
+    fun createStudent(firstName: String, lastName: String, groupId: String? = null): String {
         if (!validateStudentData(firstName, lastName)) {
             throw ValidationException("First name and Last name must be at least 2 characters long")
         }
 
-        // if a group ID is provided - verify it exists
-        if (groupId != null && groupRepository.getById(groupId) == null) {
-            throw GroupNotFoundException(groupId)
-        }
+//        // if a group ID is provided - verify it exists
+//        if (groupId != null && groupRepository.getById(groupId) == null) {
+//            throw GroupNotFoundException(groupId)
+//        }
+
+        val studentId = UUID.randomUUID().toString() // UUID may be replaced with some sort of custom ID creation logic that makes no sense for such project
 
         val newStudent = Student(
             firstName = firstName,
             lastName = lastName,
             groupId = groupId,
-            id = UUID.randomUUID().toString(), // UUID may be replaced with some sort of custom ID creation but that makes no sense for such project
+            id = studentId,
         )
 
         studentRepository.add(newStudent)
+
+        return studentId
     }
 
     fun removeStudent(id: String) {

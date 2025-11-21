@@ -46,6 +46,11 @@ class GradeRepository(private val filePath: String) : IGradeRepository {
         return grades.filter { it.subjectId == subjectId }
     }
 
+    override fun delete(id: String) {
+        grades.removeIf { it.id == id }
+        saveChanges()
+    }
+
     override fun saveChanges() {
         val content = json.encodeToString(grades)
         File(filePath).writeText(content)

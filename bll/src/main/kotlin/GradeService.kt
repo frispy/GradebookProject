@@ -4,7 +4,7 @@ class GradeService(
 ) {
     fun getAllGrade() = gradeRepository.getAll()
 
-    fun addGrade(studentId: String, subjectId: Int, value: Int) {
+    fun addGrade(studentId: String, subjectId: String, value: Int) {
 
         // validate if student exists
         if (studentRepository.getById(studentId) == null) {

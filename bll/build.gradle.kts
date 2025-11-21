@@ -14,8 +14,6 @@ dependencies {
 
     implementation(project(":dal"))
     implementation(project(":core"))
-
-
 }
 
 tasks.test {

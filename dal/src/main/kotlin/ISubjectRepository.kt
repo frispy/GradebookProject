@@ -1,7 +1,10 @@
 interface ISubjectRepository {
     fun getAll(): List<Subject>
-    fun getById(id: Int): Subject?
+    fun getById(id: String): Subject?
     fun add(subject: Subject)
-    fun delete(id: Int)
+    fun update(subject: Subject)
+    fun delete(id: String)
     fun saveChanges()
 }
+
+  
