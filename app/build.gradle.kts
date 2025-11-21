@@ -11,6 +11,11 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+
+    implementation(project(":bll"))
+    implementation(project(":dal"))
+    implementation(project(":core"))
+
 }
 
 tasks.test {

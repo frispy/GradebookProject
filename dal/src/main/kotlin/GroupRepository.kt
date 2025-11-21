@@ -33,8 +33,7 @@ class GroupRepository(private val filePath: String): IGroupRepository {
             groups[index] = group
             saveChanges()
         } else {
-            println("Error: Group not found")
-            // TODO replace with exception
+            throw GroupNotFoundException("Group with id ${group.id} not found")
         }
     }
 

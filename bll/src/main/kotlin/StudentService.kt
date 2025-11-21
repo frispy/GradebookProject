@@ -1,6 +1,9 @@
 import java.util.UUID
 
-class StudentService(private val studentRepository: IStudentRepository, private val groupRepository: IGroupRepository) {
+class StudentService(
+    private val studentRepository: IStudentRepository,
+    private val groupRepository: IGroupRepository
+) {
     fun getAllStudents() = studentRepository.getAll()
 
     fun searchStudents(query: String): List<Student> {
@@ -11,11 +14,20 @@ class StudentService(private val studentRepository: IStudentRepository, private 
     }
 
     fun createStudent(firstName: String, lastName: String, groupId: String? = null) {
+        if (!validateStudentData(firstName, lastName)) {
+            throw ValidationException("First name and Last name must be at least 2 characters long")
+        }
+
+        // if a group ID is provided - verify it exists
+        if (groupId != null && groupRepository.getById(groupId) == null) {
+            throw GroupNotFoundException(groupId)
+        }
+
         val newStudent = Student(
             firstName = firstName,
             lastName = lastName,
             groupId = groupId,
-            id = UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(), // UUID may be replaced with some sort of custom ID creation but that makes no sense for such project
         )
 
         studentRepository.add(newStudent)
@@ -28,6 +40,11 @@ class StudentService(private val studentRepository: IStudentRepository, private 
     fun updateStudent(id: String, firstName: String, lastName: String, groupId: String? = null) {
         val existingStudent = studentRepository.getById(id)
             ?: throw StudentNotFoundException("Student with ID $id not found.")
+
+        // if a group ID is provided - verify it exists
+        if (groupId != null && groupRepository.getById(groupId) == null) {
+            throw GroupNotFoundException(groupId)
+        }
 
         val updatedStudent = existingStudent.copy(
             firstName = firstName.takeIf { it.isNotBlank() } ?: existingStudent.firstName,
@@ -48,7 +65,13 @@ class StudentService(private val studentRepository: IStudentRepository, private 
 
     fun assignGroupToStudent(studentId: String, groupId: String) {
         val student = studentRepository.getById(studentId)
-            ?: throw StudentNotFoundException("Student with ID $studentId not found.")
+            ?: throw StudentNotFoundException(studentId)
+
+        // check if group exists before assigning
+
+        if (groupRepository.getById(groupId) == null) {
+            throw GroupNotFoundException(groupId)
+        }
 
         val updatedStudent = student.copy(groupId = groupId)
         studentRepository.update(updatedStudent)
@@ -60,10 +83,6 @@ class StudentService(private val studentRepository: IStudentRepository, private 
 
         val updatedStudent = student.copy(groupId = null)
         studentRepository.update(updatedStudent)
-    }
-
-    fun studentExists(id: String): Boolean {
-        return studentRepository.getAll().any { it.id == id }
     }
 
     fun validateStudentData(firstName: String, lastName: String): Boolean {

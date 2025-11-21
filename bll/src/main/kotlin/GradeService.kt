@@ -1,13 +1,21 @@
-class GradeService(private val gradeRepository: GradeRepository, private val studentRepository: StudentRepository) {
+class GradeService(
+    private val gradeRepository: IGradeRepository,
+    private val studentRepository: IStudentRepository
+) {
     fun getAllGrade() = gradeRepository.getAll()
 
     fun addGrade(studentId: String, subjectId: Int, value: Int) {
+
+        // validate if student exists
         if (studentRepository.getById(studentId) == null) {
             throw StudentNotFoundException(studentId)
         }
+
+        // validate if grade value is in range
         if (value !in 1..100) {
-            println("Error: Grade value must be between 1 and 100")
+            throw InvalidGradeException(value)
         }
+
 
         val grade = Grade(
             id = java.util.UUID.randomUUID().toString(),
@@ -33,7 +41,8 @@ class GradeService(private val gradeRepository: GradeRepository, private val stu
         val result = mutableListOf<String>()
 
         for (student in students) {
-            if (getAverageGrade(student.id) in averageGradeMin..averageGradeMax) {
+            if (getAverageGrade(student.id)
+                in averageGradeMin..averageGradeMax) {
                 result.add(student.id)
             }
         }
