@@ -30,7 +30,8 @@ class ConsoleUI(
                         listOf(
                             "List" to { listStudents() },
                             "Create" to { createStudent() },
-                            "Remove" to { removeStudent() }
+                            "Update" to { updateStudent() },
+                            "Remove" to { removeStudent() },
                         )
                     )
                 }
@@ -40,7 +41,8 @@ class ConsoleUI(
                         listOf(
                             "List" to { listGroups() },
                             "Create" to { createGroup() },
-                            "Remove" to { removeGroup() }
+                            "Update" to { updateGroup() },
+                            "Remove" to { removeGroup() },
                         )
                     )
                 }
@@ -50,8 +52,9 @@ class ConsoleUI(
                         listOf(
                             "List Subjects" to { listSubjects() },
                             "Create Subject" to { createSubject() },
+                            "Update Subject" to { updateSubject() },
                             "Add Grade" to { addGrade() },
-                            "View Performance" to { viewPerformance() }
+                            "View Performance" to { viewPerformance() },
                         )
                     )
                 }
@@ -60,7 +63,7 @@ class ConsoleUI(
                         "Search",
                         listOf(
                             "By Name" to { searchByName() },
-                            "By Avg Grade" to { searchByAvg() }
+                            "By Avg Grade" to { searchByAvg() },
                         )
                     )
                 }
@@ -99,6 +102,29 @@ class ConsoleUI(
         println("Created.")
     }
 
+    private fun updateStudent() = perform {
+        val selected = select(studentService.getAllStudents()) { "${it.lastName} ${it.firstName}" }
+        if (selected == null) return@perform
+
+        val newFirst = prompt("First Name (leave blank to keep '${selected.firstName}')")
+        val newLast = prompt("Last Name (leave blank to keep '${selected.lastName}')")
+
+        val changeGroup = prompt("Change group? (y/n)")
+        val newGroup =
+            if (changeGroup == "y") {
+                select(groupService.getAllGroups()) { it.groupName }
+            } else null
+
+        studentService.updateStudent(
+            selected.id,
+            newFirst,
+            newLast,
+            newGroup?.id
+        )
+
+        println("Updated.")
+    }
+
     private fun removeStudent() = perform {
         val selected = select(studentService.getAllStudents()) { "${it.lastName} ${it.firstName}" }
         if (selected != null) {
@@ -127,6 +153,17 @@ class ConsoleUI(
         println("Created.")
     }
 
+    private fun updateGroup() = perform {
+        val group = select(groupService.getAllGroups()) { it.groupName }
+        if (group == null) return@perform
+
+        val newName = prompt("Name (current: ${group.groupName})")
+        val newCourse = prompt("Course (current: ${group.course})").toInt()
+
+        groupService.updateGroup(group.id, newName, newCourse)
+        println("Updated.")
+    }
+
     private fun removeGroup() = perform {
         val group = select(groupService.getAllGroups()) { it.groupName }
         if (group != null) {
@@ -152,6 +189,16 @@ class ConsoleUI(
         val name = prompt("Name")
         subjectService.createSubject(name)
         println("Created.")
+    }
+
+    private fun updateSubject() = perform {
+        val selected = select(subjectService.getAllSubjects()) { it.subjectName }
+        if (selected == null) return@perform
+
+        val newName = prompt("New Name (current: ${selected.subjectName})")
+        subjectService.updateSubject(selected.id, newName)
+
+        println("Updated.")
     }
 
     private fun addGrade() = perform {
@@ -201,11 +248,11 @@ class ConsoleUI(
         }
     }
 
-    // ---------------------------
+    // ----------------------------
     // ----------------------------
     // Helpers
-    // ---------------------------
     // ----------------------------
+    // ---------------------------
 
     private fun menu(title: String, options: List<Pair<String, () -> Unit>>) {
         println()
@@ -262,7 +309,9 @@ class ConsoleUI(
     // ---------------------------
     // TEST DATA
     // ---------------------------
-    // ----------------------------
+    // ---------------------------
+
+    // function that needed so I don't manually enter all of that crap
 
     private fun ensureTestData() {
         val noGroups = groupService.getAllGroups().isEmpty()

@@ -12,7 +12,6 @@ class SubjectService(
             ?: throw SubjectNotFoundException(id)
     }
 
-    // Returns String (UUID)
     fun createSubject(subjectName: String): String {
         if (subjectName.isBlank()) {
             throw ValidationException("Subject name cannot be empty")
