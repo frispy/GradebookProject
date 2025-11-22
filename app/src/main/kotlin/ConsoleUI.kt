@@ -53,8 +53,9 @@ class ConsoleUI(
                             "List Subjects" to { listSubjects() },
                             "Create Subject" to { createSubject() },
                             "Update Subject" to { updateSubject() },
+                            "Remvove Subject" to { removeSubject() },
                             "Add Grade" to { addGrade() },
-                            "View Performance" to { viewPerformance() },
+                            "View Performance (of Student)" to { viewPerformance() },
                         )
                     )
                 }
@@ -199,6 +200,14 @@ class ConsoleUI(
         subjectService.updateSubject(selected.id, newName)
 
         println("Updated.")
+    }
+
+    private fun removeSubject() = perform {
+        val selected = select(subjectService.getAllSubjects()) { "${it.subjectName}" }
+        if (selected != null) {
+            subjectService.removeSubject(selected.id)
+            println("Removed.")
+        }
     }
 
     private fun addGrade() = perform {
