@@ -80,7 +80,6 @@ class ConsoleUI(
         // ask for basic student info
         val first = prompt("First Name")
         val last = prompt("Last Name")
-
         // optional group assignment
         val group = if (prompt("Assign Group? (y/n)") == "y") {
             select(groupService.getAllGroups()) { it.groupName }

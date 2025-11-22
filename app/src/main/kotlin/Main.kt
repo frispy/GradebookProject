@@ -13,3 +13,4 @@ fun main() {
     println("Starting the app!")
     ui.start()
 }
+

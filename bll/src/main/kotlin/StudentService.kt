@@ -18,11 +18,6 @@ class StudentService(
             throw ValidationException("First name and Last name must be at least 2 characters long")
         }
 
-//        // if a group ID is provided - verify it exists
-//        if (groupId != null && groupRepository.getById(groupId) == null) {
-//            throw GroupNotFoundException(groupId)
-//        }
-
         val studentId = UUID.randomUUID().toString() // UUID may be replaced with some sort of custom ID creation logic that makes no sense for such project
 
         val newStudent = Student(
@@ -63,31 +58,35 @@ class StudentService(
         return studentRepository.getAll().filter { it.groupId == groupId }
     }
 
-    fun getStudentsWithoutGroup(): List<Student> {
-        return studentRepository.getAll().filter { it.groupId == null }
-    }
+//    fun getStudentsWithoutGroup(): List<Student> {
+//        return studentRepository.getAll().filter { it.groupId == null }
+//    }
 
-    fun assignGroupToStudent(studentId: String, groupId: String) {
-        val student = studentRepository.getById(studentId)
-            ?: throw StudentNotFoundException(studentId)
+//    fun assignGroupToStudent(studentId: String, groupId: String) {
+//        val student = studentRepository.getById(studentId)
+//            ?: throw StudentNotFoundException(studentId)
+//
+//        // check if group exists before assigning
+//
+//        if (groupRepository.getById(groupId) == null) {
+//            throw GroupNotFoundException(groupId)
+//        }
+//
+//        val updatedStudent = student.copy(groupId = groupId)
+//        studentRepository.update(updatedStudent)
+//    }
 
-        // check if group exists before assigning
+    // unused with student editing present already
 
-        if (groupRepository.getById(groupId) == null) {
-            throw GroupNotFoundException(groupId)
-        }
+//    fun removeGroupFromStudent(studentId: String) {
+//        val student = studentRepository.getById(studentId)
+//            ?: throw StudentNotFoundException("Student with ID $studentId not found.")
+//
+//        val updatedStudent = student.copy(groupId = null)
+//        studentRepository.update(updatedStudent)
+//    }
 
-        val updatedStudent = student.copy(groupId = groupId)
-        studentRepository.update(updatedStudent)
-    }
-
-    fun removeGroupFromStudent(studentId: String) {
-        val student = studentRepository.getById(studentId)
-            ?: throw StudentNotFoundException("Student with ID $studentId not found.")
-
-        val updatedStudent = student.copy(groupId = null)
-        studentRepository.update(updatedStudent)
-    }
+    // unused with student editing present already
 
     fun validateStudentData(firstName: String, lastName: String): Boolean {
         return firstName.isNotBlank() && lastName.isNotBlank() && firstName.length > 1 && lastName.length > 1

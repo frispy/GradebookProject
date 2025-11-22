@@ -46,49 +46,74 @@ class StudentServiceTest {
     }
 
     @Test
-    fun `assignGroupToStudent should update student when both exist`() {
+    fun `updateStudent should update fields and group when valid`() {
         // Arrange
-        val studentId = "student1"
+        val id = "student1"
         val groupId = "group1"
-
-        val existingStudent = Student(id = studentId, firstName = "Andriy", lastName = "Yermak", groupId = null)
+        val existingStudent = Student(id = id, firstName = "OldName", lastName = "OldLast", groupId = null)
         val existingGroup = Group(id = groupId, groupName = "SE-1", course = 1)
 
-        every { studentRepository.getById(studentId) } returns existingStudent
+        every { studentRepository.getById(id) } returns existingStudent
         every { groupRepository.getById(groupId) } returns existingGroup
 
         // Act
-        studentService.assignGroupToStudent(studentId, groupId)
+        studentService.updateStudent(id, "NewName", "NewLast", groupId)
 
         // Assert
         verify {
-            studentRepository.update(match { it.groupId == groupId })
+            studentRepository.update(match {
+                it.firstName == "NewName" &&
+                        it.lastName == "NewLast" &&
+                        it.groupId == groupId
+            })
         }
     }
 
     @Test
-    fun `assignGroupToStudent should throw GroupNotFoundException when group does not exist`() {
+    fun `updateStudent should keep old values if new ones are blank`() {
         // Arrange
-        val studentId = "14120388-3434-4683-8313-3cf57e2082d8"
+        val id = "student1"
+        val existingStudent = Student(id = id, firstName = "KeepMe", lastName = "KeepMeToo", groupId = null)
+
+        every { studentRepository.getById(id) } returns existingStudent
+
+        // Act
+        // Передаємо пусті рядки та null групу
+        studentService.updateStudent(id, "", "", null)
+
+        // Assert
+        verify {
+            studentRepository.update(match {
+                it.firstName == "KeepMe" && // Ім'я не змінилось
+                        it.lastName == "KeepMeToo" &&
+                        it.groupId == null
+            })
+        }
+    }
+
+    @Test
+    fun `updateStudent should throw GroupNotFoundException when new group does not exist`() {
+        // Arrange
+        val id = "student1"
         val groupId = "missing_group"
 
-        every { studentRepository.getById(studentId) } returns Student(studentId, "A", "B")
-        every { groupRepository.getById(groupId) } returns null // group does not exist
+        every { studentRepository.getById(id) } returns Student(id, "Test", "User")
+        every { groupRepository.getById(groupId) } returns null // Групи немає
 
         // Act & Assert
         assertThrows(GroupNotFoundException::class.java) {
-            studentService.assignGroupToStudent(studentId, groupId)
+            studentService.updateStudent(id, "New", "Name", groupId)
         }
     }
 
     @Test
-    fun `assignGroupToStudent should throw StudentNotFoundException when student does not exist`() {
+    fun `updateStudent should throw StudentNotFoundException when student does not exist`() {
         // Arrange
         every { studentRepository.getById("missing") } returns null
 
         // Act & Assert
         assertThrows(StudentNotFoundException::class.java) {
-            studentService.assignGroupToStudent("missing", "group1")
+            studentService.updateStudent("missing", "Name", "Surname", null)
         }
     }
 
