@@ -28,6 +28,19 @@ class GradeService(
         gradeRepository.add(grade)
     }
 
+    fun updateGrade(gradeId: String, newValue: Int) {
+        if (newValue !in 0..100) {
+            throw InvalidGradeException(newValue)
+        }
+
+        val existingGrade = gradeRepository.getById(gradeId)
+            ?: throw GradebookException("Grade with ID $gradeId not found")
+
+        val updatedGrade = existingGrade.copy(value = newValue)
+
+        gradeRepository.update(updatedGrade)
+    }
+
     fun getAverageGrade(studentId: String): Double {
         val grades = gradeRepository.getByStudentId(studentId)
         if (grades.isEmpty()) return 0.0

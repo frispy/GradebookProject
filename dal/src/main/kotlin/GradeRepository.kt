@@ -33,8 +33,7 @@ class GradeRepository(private val filePath: String) : IGradeRepository {
             grades[index] = grade
             saveChanges()
         } else {
-            // TODO replace this with GradebookException one
-            println("Error: Grade not found")
+            throw ValidationException("Grade not found")
         }
     }
 
