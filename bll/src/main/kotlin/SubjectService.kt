@@ -3,52 +3,32 @@ import java.util.UUID
 class SubjectService(
     private val subjectRepository: ISubjectRepository,
     private val gradeRepository: IGradeRepository
-) {
+) : BaseService<Subject>(subjectRepository) {
 
-    fun getAllSubjects(): List<Subject> = subjectRepository.getAll()
+    fun getAllSubjects() = getAll() // alias so ConsoleUI doesn't break
+    fun getSubjectById(id: String) = getByIdOrThrow(id)
 
-    fun getSubjectById(id: String): Subject {
-        return subjectRepository.getById(id)
-            ?: throw SubjectNotFoundException(id)
+    fun createSubject(name: String): String {
+        if (name.isBlank()) throw ValidationException("Name empty")
+        val id = UUID.randomUUID().toString()
+        subjectRepository.add(Subject(id, name))
+        return id
     }
 
-    fun createSubject(subjectName: String): String {
-        if (subjectName.isBlank()) {
-            throw ValidationException("Subject name cannot be empty")
-        }
-
-        val newId = UUID.randomUUID().toString()
-
-        val newSubject = Subject(
-            id = newId,
-            subjectName = subjectName
-        )
-
-        subjectRepository.add(newSubject)
-        return newId
-    }
-
-    fun updateSubject(id: String, newName: String) {
-        val existingSubject = subjectRepository.getById(id)
-            ?: throw SubjectNotFoundException(id)
-
-        if (newName.isBlank()) throw ValidationException("Subject name cannot be empty")
-
-        val updatedSubject = existingSubject.copy(subjectName = newName)
-        subjectRepository.update(updatedSubject)
+    fun updateSubject(id: String, name: String) {
+        val existing = getByIdOrThrow(id)
+        if (name.isBlank()) throw ValidationException("Name empty")
+        subjectRepository.update(existing.copy(subjectName = name))
     }
 
     fun removeSubject(id: String) {
-        if (subjectRepository.getById(id) == null) {
-            throw SubjectNotFoundException(id)
-        }
+        getByIdOrThrow(id)
 
         // delete associated grades
         val grades = gradeRepository.getBySubjectId(id)
-        grades.forEach { grade ->
-            gradeRepository.delete(grade.id)
-        }
+        grades.forEach { gradeRepository.delete(it.id) }
 
-        subjectRepository.delete(id)
+        super.remove(id)
     }
 }
+

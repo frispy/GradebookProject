@@ -3,62 +3,37 @@ import java.util.UUID
 class GroupService(
     private val groupRepository: IGroupRepository,
     private val studentRepository: IStudentRepository
-)  {
+) : BaseService<Group>(groupRepository) {
 
-    fun getAllGroups(): List<Group> = groupRepository.getAll()
+    fun getGroupById(id: String) = getByIdOrThrow(id)
+    fun getAllGroups() = getAll() // alias so ConsoleUI doesn't break
 
-    fun getGroupById(id: String): Group {
-        return groupRepository.getById(id)
-            ?: throw GroupNotFoundException(id)
+    fun createGroup(name: String, course: Int): String {
+        if (name.isBlank()) throw ValidationException("Empty name")
+        if (course !in 1..6) throw ValidationException("Invalid course")
+
+        val id = UUID.randomUUID().toString()
+        groupRepository.add(Group(id, name, course))
+        return id
     }
 
-    fun createGroup(groupName: String, course: Int): String {
-        if (groupName.isBlank()) throw ValidationException("Group name cannot be empty")
-        if (course !in 1..5) throw ValidationException("Course must be between 1 and 5")
-
-        val groupId = UUID.randomUUID().toString()
-
-        val newGroup = Group(
-            groupName = groupName,
-            course = course,
-            id = groupId,
-            )
-
-        groupRepository.add(newGroup)
-
-        return groupId
+    fun updateGroup(id: String, name: String, course: Int) {
+        val existing = getByIdOrThrow(id)
+        if (name.isBlank()) throw ValidationException("Empty name")
+        groupRepository.update(existing.copy(groupName = name, course = course))
     }
 
-    fun removeGroup(groupId: String) {
-        if (groupRepository.getById(groupId) != null) {
-            val studentsInGroup = studentRepository.getAll().filter { it.groupId == groupId }
+    fun removeGroup(id: String) {
+        // check if group exists
+        getByIdOrThrow(id)
 
-            // remove the group from the students that may have had it
-            for (student in studentsInGroup) {
-                val unlinkedStudent = student.copy(groupId = null)
-                studentRepository.update(unlinkedStudent)
-            }
-
-            groupRepository.delete(groupId)
-        } else {
-            throw GroupNotFoundException(groupId)
+        // remove group from students that may have had it
+        val students = studentRepository.getAll().filter { it.groupId == id }
+        students.forEach {
+            studentRepository.update(it.copy(groupId = null))
         }
+
+        // call remove function from BaseSerbice
+        super.remove(id)
     }
-
-
-    fun updateGroup(id: String, newName: String, newCourse: Int) {
-        val existingGroup = groupRepository.getById(id) ?: throw GroupNotFoundException(id)
-
-        if (newName.isBlank()) throw ValidationException("Group name cannot be empty")
-
-        val updatedGroup = existingGroup.copy(
-            groupName = newName,
-            course = newCourse
-        )
-
-        groupRepository.update(updatedGroup)
-    }
-
-
-
 }

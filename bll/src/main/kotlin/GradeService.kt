@@ -1,44 +1,32 @@
+
+import java.util.UUID
 class GradeService(
     private val gradeRepository: IGradeRepository,
     private val studentRepository: IStudentRepository
-) {
-    fun getAllGrade() = gradeRepository.getAll()
+) : BaseService<Grade>(gradeRepository) {
+
+    fun getAllGrade() = getAll() // alias so ConsoleUI doesn't break
 
     fun addGrade(studentId: String, subjectId: String, value: Int) {
-
-        // validate if student exists
-        if (studentRepository.getById(studentId) == null) {
-            throw StudentNotFoundException(studentId)
-        }
-
-        // validate if grade value is in range
-        if (value !in 1..100) {
-            throw InvalidGradeException(value)
-        }
-
+        if (studentRepository.getById(studentId) == null) throw StudentNotFoundException(studentId)
+        if (value !in 0..100) throw InvalidGradeException(value)
 
         val grade = Grade(
-            id = java.util.UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(),
             studentId = studentId,
-            subjectId = subjectId.toString(),
+            subjectId = subjectId,
             value = value,
             date = java.time.LocalDate.now().toString()
         )
-
         gradeRepository.add(grade)
     }
 
-    fun updateGrade(gradeId: String, newValue: Int) {
+    fun updateGrade(id: String, newValue: Int) {
         if (newValue !in 0..100) {
             throw InvalidGradeException(newValue)
         }
-
-        val existingGrade = gradeRepository.getById(gradeId)
-            ?: throw GradebookException("Grade with ID $gradeId not found")
-
-        val updatedGrade = existingGrade.copy(value = newValue)
-
-        gradeRepository.update(updatedGrade)
+        val existing = getByIdOrThrow(id)
+        gradeRepository.update(existing.copy(value = newValue))
     }
 
     fun getAverageGrade(studentId: String): Double {
@@ -46,8 +34,6 @@ class GradeService(
         if (grades.isEmpty()) return 0.0
         return grades.map { it.value }.average()
     }
-
-    // returns ids of students with an average grade in range of values
 
     fun getStudentsByAverageGrade(averageGradeMin: Double, averageGradeMax: Double): List<String> {
         val students = studentRepository.getAll()
@@ -62,5 +48,6 @@ class GradeService(
 
         return result
     }
-
 }
+
+
